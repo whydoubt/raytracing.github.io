@@ -66,6 +66,9 @@ check out the online [_Graphics Codex_][gfx-codex] by Morgan McGuire, _Fundament
 Graphics_ by Steve Marschner and Peter Shirley, or _Computer Graphics: Principles and Practice_
 by J.D. Foley and Andy Van Dam.
 
+See the [project README][readme] file for information about this project, the repository on GitHub,
+directory structure, building & running, and how to make or reference corrections and contributions.
+
 See [our Further Reading wiki page][wiki-further] for additional project related resources.
 
 These books have been formatted to print well directly from your browser. We also include PDFs of
@@ -190,6 +193,8 @@ On Mac or Linux, release build, you would launch the program like this:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     build/inOneWeekend > image.ppm
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Complete building and running instructions can be found in the [project README][readme].
 
 Opening the output file (in `ToyViewer` on my Mac, but try it in your favorite image viewer and
 Google “ppm viewer” if your viewer doesn’t support it) shows this result:
@@ -1286,8 +1291,8 @@ that stores a list of `hittable`s:
     #include <memory>
     #include <vector>
 
-    using std::shared_ptr;
     using std::make_shared;
+    using std::shared_ptr;
 
     class hittable_list : public hittable {
       public:
@@ -1385,23 +1390,23 @@ Common Constants and Utility Functions
 ---------------------------------------
 We need some math constants that we conveniently define in their own header file. For now we only
 need infinity, but we will also throw our own definition of pi in there, which we will need later.
-There is no standard portable definition of pi, so we just define our own constant for it. We'll
-throw common useful constants and future utility functions in `rtweekend.h`, our general main header
-file.
+We'll also throw common useful constants and future utility functions in here. This new header,
+`rtweekend.h`, will be our general main header file.
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     #ifndef RTWEEKEND_H
     #define RTWEEKEND_H
 
     #include <cmath>
+    #include <iostream>
     #include <limits>
     #include <memory>
 
 
-    // Usings
+    // C++ Std Usings
 
-    using std::shared_ptr;
     using std::make_shared;
+    using std::shared_ptr;
     using std::sqrt;
 
     // Constants
@@ -1417,6 +1422,7 @@ file.
 
     // Common Headers
 
+    #include "color.h"
     #include "ray.h"
     #include "vec3.h"
 
@@ -1424,13 +1430,65 @@ file.
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [Listing [rtweekend-initial]: <kbd>[rtweekend.h]</kbd> The rtweekend.h common header]
 
+All main program files will include `rtweekend.h` first, so most other header files (where the bulk
+of our code will reside) can assume these definitions are already available. Headers included inside
+`rtweekend.h` still need to include any of their dependencies. We'll make some updates with this
+assumption in mind.
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    #include "vec3.h"
+
+    #include <iostream>
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [assume-rtw-color]: <kbd>[color.h]</kbd> Assume rtweekend.h inclusion for color.h]
+
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    #include "ray.h"
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [assume-rtw-hittable]: <kbd>[hittable.h]</kbd>
+        Assume rtweekend.h inclusion for hittable.h
+    ]
+
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    #include <memory>
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    #include <vector>
+
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    using std::make_shared;
+    using std::shared_ptr;
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [assume-rtw-hittable-list]: <kbd>[hittable_list.h]</kbd>
+        Assume rtweekend.h inclusion for hittable_list.h
+    ]
+
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    #include "vec3.h"
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [assume-rtw-sphere]: <kbd>[sphere.h]</kbd> Assume rtweekend.h inclusion for sphere.h]
+
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    #include <cmath>
+    #include <iostream>
+
+    using std::sqrt;
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [assume-rtw-vec3]: <kbd>[vec3.h]</kbd> Assume rtweekend.h inclusion for vec3.h]
+
 <div class='together'>
-And the new main:
+And now the new main:
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
     #include "rtweekend.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
     #include "color.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
     #include "hittable.h"
@@ -1438,7 +1496,10 @@ And the new main:
     #include "sphere.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
     #include <iostream>
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
@@ -1579,7 +1640,7 @@ and a maximum. We'll end up using this class quite often as we proceed.
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     // Common Headers
 
-
+    #include "color.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ Highlight
     #include "interval.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
@@ -1663,7 +1724,6 @@ and a maximum. We'll end up using this class quite often as we proceed.
 
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
-    ...
     color ray_color(const ray& r, const hittable& world) {
         hit_record rec;
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
@@ -1676,7 +1736,6 @@ and a maximum. We'll end up using this class quite often as we proceed.
         auto a = 0.5*(unit_direction.y() + 1.0);
         return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
     }
-    ...
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [Listing [main-with-interval]: <kbd>[main.cc]</kbd> The new main using interval]
 
@@ -1715,7 +1774,6 @@ Here's the skeleton of our new `camera` class:
 
     #include "rtweekend.h"
 
-    #include "color.h"
     #include "hittable.h"
 
     class camera {
@@ -1755,8 +1813,8 @@ To begin with, let's fill in the `ray_color()` function from `main.cc`:
         ...
 
 
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
         color ray_color(const ray& r, const hittable& world) const {
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
             hit_record rec;
 
             if (world.hit(r, interval(0, infinity), rec)) {
@@ -1766,8 +1824,8 @@ To begin with, let's fill in the `ray_color()` function from `main.cc`:
             vec3 unit_direction = unit_vector(r.direction());
             auto a = 0.5*(unit_direction.y() + 1.0);
             return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
-        }
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+        }
     };
 
     #endif
@@ -1782,17 +1840,6 @@ remaining in the `main()` function is the world construction. Here's the camera 
 migrated code:
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
-    ...
-    #include "rtweekend.h"
-
-    #include "color.h"
-    #include "hittable.h"
-
-
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
-    #include <iostream>
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
-
     class camera {
       public:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
@@ -1868,14 +1915,26 @@ migrated code:
 <div class='together'>
 And here's the much reduced main:
 
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     #include "rtweekend.h"
 
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
     #include "camera.h"
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    #include "hittable.h"
     #include "hittable_list.h"
     #include "sphere.h"
 
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ delete
+    color ray_color(const ray& r, const hittable& world) {
+        ...
+    }
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+
     int main() {
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
         hittable_list world;
 
         world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
@@ -1887,6 +1946,7 @@ And here's the much reduced main:
         cam.image_width  = 400;
 
         cam.render(world);
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     }
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [Listing [main-with-new-camera]: <kbd>[main.cc]</kbd> The new main, using the new camera]
@@ -1944,6 +2004,7 @@ desired with the following code snippet, added to `rtweekend.h`:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ Highlight
     #include <cstdlib>
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    #include <iostream>
     #include <limits>
     #include <memory>
     ...
@@ -2019,7 +2080,13 @@ the proper $[0,1]$ bounds, we'll add and use a small helper function: `interval:
 
 Here's the updated `write_color()` function that incorporates the interval clamping function:
 
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
+    #include "interval.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    #include "vec3.h"
+
+    using color = vec3;
+
     void write_color(std::ostream& out, const color& pixel_color) {
         auto r = pixel_color.x();
         auto g = pixel_color.y();
@@ -2082,7 +2149,9 @@ we're currently sampling.
         double pixel_samples_scale;  // Color scale factor for a sum of pixel samples
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
         point3 center;               // Camera center
-        ...
+        point3 pixel00_loc;          // Location of pixel 0, 0
+        vec3   pixel_delta_u;        // Offset to pixel to the right
+        vec3   pixel_delta_v;        // Offset to pixel below
 
         void initialize() {
             image_height = int(image_width / aspect_ratio);
@@ -2120,7 +2189,9 @@ we're currently sampling.
         }
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
-        ...
+        color ray_color(const ray& r, const hittable& world) const {
+            ...
+        }
     };
 
     #endif
@@ -2758,11 +2829,7 @@ references. In C++ we add the line `class material;` to tell the compiler that `
 that will be defined later. Since we're just specifying a pointer to the class, the compiler doesn't
 need to know the details of the class, solving the circular reference issue.
 
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
-
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
-    #include "rtweekend.h"
-
     class material;
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
@@ -2797,8 +2864,9 @@ To achieve this, `hit_record` needs to be told the material that is assigned to 
     class sphere : public hittable {
       public:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
-        sphere(const point3& center, double radius, shared_ptr<material> mat)
-          : center(center), radius(fmax(0,radius)), mat(mat) {}
+        sphere(const point3& center, double radius) : center(center), radius(fmax(0,radius)) {
+            // TODO: Initialize the material pointer `mat`.
+        }
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
@@ -2868,7 +2936,7 @@ simple task:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [Listing [lambertian-initial]: <kbd>[material.h]</kbd> The new lambertian material class]
 
-Note the third option that we could scatter with some fixed probability $p$ and have attenuation be
+Note the third option: we could scatter with some fixed probability $p$ and have attenuation be
 $\mathit{albedo}/p$. Your choice.
 
 If you read the code above carefully, you'll notice a small chance of mischief. If the random unit
@@ -2879,6 +2947,23 @@ NaNs), so we need to intercept the condition before we pass it on.
 In service of this, we'll create a new vector method -- `vec3::near_zero()` -- that returns true if
 the vector is very close to zero in all dimensions.
 
+The following changes will use the C++ standard library function `std::fabs`, which returns the
+absolute value of its input, so add this to our standard header.
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    // C++ Std Usings
+
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
+    using std::fabs;
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    using std::make_shared;
+    using std::shared_ptr;
+    using std::sqrt;
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [declare-fabs]: <kbd>[rtweekend.h]</kbd> Declaring std::fabs()]
+
+  
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     class vec3 {
         ...
@@ -2959,9 +3044,6 @@ Putting everything together, we get the following computation of the reflected v
     inline vec3 reflect(const vec3& v, const vec3& n) {
         return v - 2*dot(v,n)*n;
     }
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
-
-    ...
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [Listing [vec3-reflect]: <kbd>[vec3.h]</kbd> vec3 reflection function]
 
@@ -3004,7 +3086,6 @@ We need to modify the `ray_color()` function for all of our changes:
     ...
     #include "rtweekend.h"
 
-    #include "color.h"
     #include "hittable.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
     #include "material.h"
@@ -3042,6 +3123,21 @@ We need to modify the `ray_color()` function for all of our changes:
 
 </div>
 
+Now we'll update the `sphere` constructor to initialize the material pointer `mat`:
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    class sphere : public hittable {
+      public:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
+        sphere(const point3& center, double radius, shared_ptr<material> mat)
+          : center(center), radius(fmax(0,radius)), mat(mat) {}
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+
+        ...
+    };
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Listing [sphere-ctor-material]: <kbd>[sphere.h]</kbd> Initializing sphere with a material]
+
 
 A Scene with Metal Spheres
 ---------------------------
@@ -3051,9 +3147,6 @@ Now let’s add some metal spheres to our scene:
     #include "rtweekend.h"
 
     #include "camera.h"
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
-    #include "color.h"
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     #include "hittable_list.h"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
     #include "material.h"
@@ -3066,7 +3159,7 @@ Now let’s add some metal spheres to our scene:
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
         auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-        auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+        auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
         auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8));
         auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2));
 
@@ -3145,7 +3238,7 @@ We can try that out by adding fuzziness 0.3 and 1.0 to the metals:
     int main() {
         ...
         auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-        auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+        auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
         auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
         auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
@@ -3175,8 +3268,8 @@ A _refracted_ ray bends as it transitions from a material's surroundings into th
 
 The amount that a refracted ray bends is determined by the material's _refractive index_. Generally,
 this is a single value that describes how much light bends when entering a material from a vacuum.
-Glass has a refractive index of something like 1.5&ndash;1.7, and air has a small refractive index
-of 1.000293.
+Glass has a refractive index of something like 1.5&ndash;1.7, diamond is around 2.4, and air has a
+small refractive index of 1.000293.
 
 When a transparent material is embedded in a different transparent material, you can describe the
 refraction with a relative refraction index: the refractive index of the object's material divided
@@ -3208,8 +3301,7 @@ The refraction is described by Snell’s law:
   $$ \eta \cdot \sin\theta = \eta' \cdot \sin\theta' $$
 
 Where $\theta$ and $\theta'$ are the angles from the normal, and $\eta$ and $\eta'$ (pronounced
-"eta" and "eta prime") are the refractive indices (typically air = 1.0, glass = 1.3–1.7, diamond =
-2.4). The geometry is:
+"eta" and "eta prime") are the refractive indices. The geometry is:
 
   ![Figure [refraction]: Ray refraction](../images/fig-1.17-refraction.jpg)
 
@@ -3505,6 +3597,7 @@ material:
 
             bool cannot_refract = ri * sin_theta > 1.0;
             vec3 direction;
+
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
             if (cannot_refract || reflectance(cos_theta, ri) > random_double())
@@ -3966,6 +4059,8 @@ Since we'll be choosing random points from the defocus disk, we'll need a functi
 `random_in_unit_sphere()`, just for two dimensions.
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+    ...
+
     inline vec3 unit_vector(const vec3& u) {
         return v / v.length();
     }
@@ -3979,6 +4074,9 @@ Since we'll be choosing random points from the defocus disk, we'll need a functi
                 return p;
         }
     }
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
+
+    ...
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [Listing [rand-in-unit-disk]: <kbd>[vec3.h]</kbd> Generate random point inside unit disk]
 
@@ -4126,7 +4224,7 @@ Using a large aperture:
 
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++ highlight
-        cam.defocus_angle = 10;
+        cam.defocus_angle = 10.0;
         cam.focus_dist    = 3.4;
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
 
@@ -4376,6 +4474,7 @@ Snippets
 
 [discussions]:        https://github.com/RayTracing/raytracing.github.io/discussions/
 [gfx-codex]:          https://graphicscodex.com/
+[readme]:             ../README.md
 [releases]:           https://github.com/RayTracing/raytracing.github.io/releases/
 [repo]:               https://github.com/RayTracing/raytracing.github.io/
 [square-pixels]:      https://www.researchgate.net/publication/244986797
