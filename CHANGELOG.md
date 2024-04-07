@@ -66,6 +66,8 @@ that, here are the latest changes since our alpha.1 release:
               Graphics: Principles and Practice". This is the name used by newer editions of the
               book.
   - Change -- Updated the "Next Steps" section at the end of book 1 (#1209)
+  - Change -- Update rtweekend.h header introduction and use (#1473)
+  - Fix    -- Load texture images in proper linear color space (#842)
   - Fix    -- Fix code listing ordering bug with `lambertian` texture support (#1258)
   - New    -- Improved help for the very first build and run.
   - New    -- Define albedo prior to first use (#1430)
