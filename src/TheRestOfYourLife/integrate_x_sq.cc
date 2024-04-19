@@ -8,7 +8,7 @@ double f(double d) {
 }
 
 double pdf(double x) {
-    return 0.5;
+    return x / 2.0;
 }
 
 int main() {
@@ -16,7 +16,11 @@ int main() {
     auto sum = 0.0;
 
     for (int i = 0; i < N; i++) {
-        auto x = f(random_double());
+        auto z = random_double();
+        if (z == 0.0)  // Ignore zero to avoid NaNs
+            continue;
+
+        auto x = f(z);
         sum += x*x / pdf(x);
     }
 
