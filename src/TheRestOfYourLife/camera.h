@@ -162,9 +162,10 @@ class camera {
 
         ray scattered;
         color attenuation;
+        double pdf_value; // TODO: What are we supposed to do with the returned PDF?
         color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
 
-        if (!rec.mat->scatter(r, rec, attenuation, scattered))
+        if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_value))
             return color_from_emission;
 
         double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
