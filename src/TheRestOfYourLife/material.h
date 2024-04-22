@@ -13,7 +13,7 @@
 
 #include "rtweekend.h"
 
-#include "onb.h"
+#include "pdf.h"
 #include "texture.h"
 
 class hit_record;
@@ -54,22 +54,17 @@ class lambertian : public material {
     lambertian(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}
     lambertian(shared_ptr<texture> tex) : tex(tex) {}
 
-    bool scatter(
-        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, double& pdf
-    ) const override {
-        onb uvw;
-        uvw.build_from_w(rec.normal);
-        auto scatter_direction = uvw.local(random_cosine_direction());
-
-        scattered = ray(rec.p, unit_vector(scatter_direction), r_in.time());
-        attenuation = tex->value(rec.u, rec.v, rec.p);
-        pdf = dot(uvw.w(), scattered.direction()) / pi;
+    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override {
+        srec.attenuation = tex->value(rec.u, rec.v, rec.p);
+        srec.pdf_ptr = make_shared<cosine_pdf>(rec.normal);
+        srec.skip_pdf = false;
         return true;
     }
 
     double scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered)
     const override {
-        return 1 / (2*pi);
+        auto cos_theta = dot(rec.normal, unit_vector(scattered.direction()));
+        return cos_theta < 0 ? 0 : cos_theta/pi;
     }
 
   private:
