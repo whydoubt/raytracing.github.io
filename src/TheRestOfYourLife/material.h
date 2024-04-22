@@ -76,14 +76,16 @@ class metal : public material {
   public:
     metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
-    bool scatter(
-        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, double& pdf
-    ) const override {
+    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override {
         vec3 reflected = reflect(r_in.direction(), rec.normal);
         reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
-        scattered = ray(rec.p, reflected, r_in.time());
-        attenuation = albedo;
-        return (dot(scattered.direction(), rec.normal) > 0);
+
+        srec.attenuation = albedo;
+        srec.pdf_ptr = nullptr;
+        srec.skip_pdf = true;
+        srec.skip_pdf_ray = ray(rec.p, reflected, r_in.time());
+
+        return true;
     }
 
   private:
@@ -96,10 +98,10 @@ class dielectric : public material {
   public:
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-    bool scatter(
-        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, double& pdf
-    ) const override {
-        attenuation = color(1.0, 1.0, 1.0);
+    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override {
+        srec.attenuation = color(1.0, 1.0, 1.0);
+        srec.pdf_ptr = nullptr;
+        srec.skip_pdf = true;
         double ri = rec.front_face ? (1.0/refraction_index) : refraction_index;
 
         vec3 unit_direction = unit_vector(r_in.direction());
@@ -114,7 +116,7 @@ class dielectric : public material {
         else
             direction = refract(unit_direction, rec.normal, ri);
 
-        scattered = ray(rec.p, direction, r_in.time());
+        srec.skip_pdf_ray = ray(rec.p, direction, r_in.time());
         return true;
     }
 
