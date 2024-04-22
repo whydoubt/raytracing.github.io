@@ -19,6 +19,15 @@
 class hit_record;
 
 
+class scatter_record {
+  public:
+    color attenuation;
+    shared_ptr<pdf> pdf_ptr;
+    bool skip_pdf;
+    ray skip_pdf_ray;
+};
+
+
 class material {
   public:
     virtual ~material() = default;
@@ -29,9 +38,7 @@ class material {
         return color(0,0,0);
     }
 
-    virtual bool scatter(
-        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, double& pdf
-    ) const {
+    virtual bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const {
         return false;
     }
 
