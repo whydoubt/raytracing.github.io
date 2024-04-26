@@ -1401,10 +1401,16 @@ on polar coordinates, so $p$ would be in terms of $\theta$ and $\phi$ for $p(\th
 doesn't matter which coordinate system you choose to use. Although, however you choose to do it,
 remember that a PDF must integrate to one over the whole surface and that the PDF represents the
 _relative probability_ of that direction being sampled. Recall that we have a `vec3` function to
-generate uniform random samples on the unit sphere (`random_unit_vector()`). What is the PDF of
-these uniform samples? As a uniform density on the unit sphere, it is $1/\mathit{area}$ of the
+generate uniform random samples on the unit sphere $d$ (`random_unit_vector()`). What is the PDF
+of these uniform samples? As a uniform density on the unit sphere, it is $1/\mathit{area}$ of the
 sphere, which is $1/(4\pi)$. If the integrand is $\cos^2(\theta)$, and $\theta$ is the angle with
-the $z$ axis:
+the $z$ axis, we can use scalar projection to re-write $\cos^2(\theta)$ in terms of the $d_z$:
+
+  $$  d_z = \lVert d \rVert \cos \theta = 1 \cdot \cos \theta $$
+
+We can then substitute $1 \cdot \cos \theta$ with $d_z$ giving us:
+
+  $$ f(\theta, \phi) = \cos^2 (\theta) = {d_z}^2 $$
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++
     #include "rtweekend.h"
