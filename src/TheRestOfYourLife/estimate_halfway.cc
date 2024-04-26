@@ -46,7 +46,7 @@ int main() {
     }
 
     // Sort the samples by x.
-    std::sort(samples, samples + N, compare_by_x);
+    std::sort(std::begin(samples), std::end(samples), compare_by_x);
 
     // Find out the sample at which we have half of our area.
     double half_sum = sum / 2.0;
