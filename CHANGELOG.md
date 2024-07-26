@@ -1,6 +1,22 @@
 Change Log / Ray Tracing in One Weekend
 ====================================================================================================
 
+# v4.0.1 (in progress)
+
+### Common
+  - Delete --
+  - Change --
+  - Fix    --
+  - New    --
+
+### In One Weekend
+
+### The Next Week
+
+### The Rest of Your Life
+
+
+----------------------------------------------------------------------------------------------------
 # v4.0.0 (2024-07-26)
 
 From our last official v3.2.3 release (three and a half years ago!), this major release includes all
@@ -13,12 +29,12 @@ major releases.
 There's still a fair amount of work remaining on book three, which we'll work on after this release.
 
 ### Common
-  - New    -- Add explicit std:: namespacing almost everywhere (#1487)
   - Change -- Use delegating constructors where helpful (#1489)
   - Change -- Standardized our use of `begin`/`end` standard C++ iterators (#1551)
   - Fix    -- CSS reformatting and fixes (#1567)
   - Fix    -- Add workaround for image and figure captions using latest Markdeep versions (#1583)
   - New    -- Add DOCTYPE declaration to all Markdeep documents (#1566)
+  - New    -- Add explicit std:: namespacing almost everywhere (#1487)
 
 ### The Next Week
   - Delete -- Remove debug output code from `constant_medium::hit()` function (#1495)
