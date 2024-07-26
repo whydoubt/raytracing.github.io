@@ -1,6 +1,54 @@
 Change Log / Ray Tracing in One Weekend
 ====================================================================================================
 
+# v5.0.0 (in progress)
+
+### Common
+  - Delete --
+  - Change --
+  - Fix    --
+  - New    --
+
+### In One Weekend
+
+### The Next Week
+
+### The Rest of Your Life
+
+
+----------------------------------------------------------------------------------------------------
+# v4.1.0 (in progress)
+
+### Common
+  - Delete --
+  - Change --
+  - Fix    --
+  - New    --
+
+### In One Weekend
+
+### The Next Week
+
+### The Rest of Your Life
+
+
+----------------------------------------------------------------------------------------------------
+# v4.0.1 (in progress)
+
+### Common
+  - Delete --
+  - Change --
+  - Fix    --
+  - New    --
+
+### In One Weekend
+
+### The Next Week
+
+### The Rest of Your Life
+
+
+----------------------------------------------------------------------------------------------------
 # v4.0.0 (2024-07-26)
 
 From our last official v3.2.3 release (three and a half years ago!), this major release includes all
