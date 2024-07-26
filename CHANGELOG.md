@@ -1,7 +1,7 @@
 Change Log / Ray Tracing in One Weekend
 ====================================================================================================
 
-# v4.0.0 (2024-07-28)
+# v4.0.0 (2024-07-26)
 
 From our last official v3.2.3 release (three and a half years ago!), this major release includes all
 changes in the v4.0.0-alpha.1 and v4.0.0-alpha.2 releases, plus the changes listed immediately
