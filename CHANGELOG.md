@@ -30,6 +30,7 @@ Change Log / Ray Tracing in One Weekend
 ### The Next Week
 
 ### The Rest of Your Life
+  - Fix    -- Fix typo of "arbitrary" (#1589)
 
 
 ----------------------------------------------------------------------------------------------------
